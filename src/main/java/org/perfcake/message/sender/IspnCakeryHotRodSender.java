@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IspnCakeryHotRodSender extends AbstractSender {
 
-    private Logger log = LoggerFactory.getLogger(IspnCakeryODataAndRestSender.class);
+    private Logger log = LoggerFactory.getLogger(IspnCakeryHotRodSender.class);
 
     // Every thread in the scenario is about to run init() but we need to run it only once.
     private boolean initDone = false;
