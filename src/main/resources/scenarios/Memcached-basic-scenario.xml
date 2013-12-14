@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario xmlns="urn:perfcake:scenario:1.0">
+    <generator class="DefaultMessageGenerator" threads="${threads}">
+    <run type="${runType}" value="${duration}" />
+    <property name="threadQueueSize" value="${threadQueueSize}" />
+    </generator>
+
+    <sender class="IspnCakeryMemcachedSender">
+        <property name="target" value="blah HotRod target - value"/>
+    </sender>
+
+    <reporting>
+
+        <reporter class="ResponseTimeReporter">
+            <destination class="ConsoleDestination">
+                <period type="time" value="1000"/>
+            </destination>
+            <destination class="CSVDestination">
+                <period type="time" value="1000"/>
+                <property name="path" value="response-time.csv"/>
+            </destination>
+        </reporter>
+
+        <reporter class="AverageThroughputReporter">
+            <destination class="ConsoleDestination">
+                <period type="time" value="1000"/>
+            </destination>
+            <destination class="CSVDestination">
+                <period type="time" value="1000"/>
+                <property name="path" value="throughput.csv"/>
+            </destination>
+        </reporter>
+
+        <!--<property name="tags" value="" />-->
+        <!--<property name="uniqueId" value="REST-basic-scenario" />-->
+        <!--<reporter class="ATReporter">-->
+        <!--<property name="label_type" value="Iteration" />-->
+        <!--<destination class="CsvDestination">-->
+        <!--<property name="periodicity" value="1it" />-->
+        <!--<property name="outputPath" value="logs" />-->
+        <!--</destination>-->
+        <!--<destination class="ConsoleDestination">-->
+        <!--<property name="periodicity" value="1it" />-->
+        <!--</destination>-->
+        <!--</reporter>-->
+    </reporting>
+    <!--<messages>-->
+    <!--<message>-->
+    <!--<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />-->
+    <!--<header name="Accept" value="application/json, application/xml" />-->
+    <!--</message>-->
+    <!--</messages>-->
+
+
+    <!--<reporting>-->
+    <!--<reporter class="WarmUpReporter" enabled="${warmUp}">-->
+    <!--<property name="minimalWarmUpCount" value="${minimalWarmUpCount}" />-->
+    <!--<property name="relativeThreshold" value="${relativeThreshold}" />-->
+    <!--</reporter>-->
+    <!--<reporter class="AverageThroughputReporter">-->
+    <!--<destination class="CSVDestination">-->
+    <!--<period type="${periodType}" value="${periodicity}" />-->
+    <!--<property name="path" value="${scenario}-AT.csv" />-->
+    <!--</destination>-->
+    <!--<destination class="ConsoleDestination">-->
+    <!--<period type="${periodType}" value="${periodicity}" />-->
+    <!--</destination>-->
+    <!--</reporter>-->
+    <!--</reporting>-->
+    <!--<messages>-->
+    <!--<message>-->
+    <!--&lt;!&ndash; basic authentication guest:guest &ndash;&gt;-->
+    <!--<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />-->
+    <!--<header name="Accept" value="application/xml" />-->
+    <!--</message>-->
+    <!--</messages>-->
+</scenario>
+
