@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <scenario xmlns="urn:perfcake:scenario:1.0">
-    <!--<generator class="DefaultMessageGenerator" threads="${threads}">-->
-    <!--<run type="${runType:time}" value="${duration}" />-->
-    <!--<property name="threadQueueSize" value="${threadQueueSize}" />-->
-    <!--</generator>-->
-
-    <generator class="DefaultMessageGenerator" threads="1">
-        <run type="iteration" value="100"/>
-        <!--<run type="iteration" value="1" />-->
-        <property name="threadQueueSize" value="10000"/>
+    <generator class="DefaultMessageGenerator" threads="${threads}">
+    <run type="${runType}" value="${duration}" />
+    <property name="threadQueueSize" value="${threadQueueSize}" />
     </generator>
-
 
     <sender class="IspnCakeryHotRodSender">
         <property name="target" value="blah HotRod target - value"/>
@@ -20,20 +13,20 @@
 
         <reporter class="ResponseTimeReporter">
             <destination class="ConsoleDestination">
-                <period type="time" value="500"/>
+                <period type="time" value="1000"/>
             </destination>
             <destination class="CSVDestination">
-                <period type="time" value="500"/>
+                <period type="time" value="1000"/>
                 <property name="path" value="response-time.csv"/>
             </destination>
         </reporter>
 
         <reporter class="AverageThroughputReporter">
             <destination class="ConsoleDestination">
-                <period type="time" value="500"/>
+                <period type="time" value="1000"/>
             </destination>
             <destination class="CSVDestination">
-                <period type="time" value="500"/>
+                <period type="time" value="1000"/>
                 <property name="path" value="throughput.csv"/>
             </destination>
         </reporter>

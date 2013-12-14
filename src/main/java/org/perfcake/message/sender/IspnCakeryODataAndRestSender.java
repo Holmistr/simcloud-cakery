@@ -44,6 +44,8 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     private String cacheName;
     private int numOfEntries = 1;
 
+    private int requestSleepTimeMillis = 0;
+
     private Random rand = new Random();
 
 
@@ -65,6 +67,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //      String cacheName = "mySpecialNamedCache" "default"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
+        requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
+
+        System.out.println("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
 
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
         initDone = Boolean.parseBoolean(System.getProperty("initDone"));
@@ -188,9 +193,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     @Override
     public void postSend(final Message message) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(requestSleepTimeMillis);
         } catch (InterruptedException e) {
-            e.printStackTrace();  // TODO: Customise this generated block
+            e.printStackTrace();
         }
     }
 
@@ -214,7 +219,6 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         // TODO: make it bigger + measure size of entry + pass entrySize=Xkb? and according to this
         // TODO: system property passed for test scenario, generate such a big entries
 
-        // TODO: endpoint have to accept standard JSON value (without "d" specification)
         // according do OData JSON format standard
 //        sb.append("{\"d\" : {\"jsonValue\" : ");
         sb.append("{");
