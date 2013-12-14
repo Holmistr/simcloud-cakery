@@ -24,7 +24,7 @@
             </destination>
             <destination class="CSVDestination">
                 <period type="time" value="500"/>
-                <property name="path" value="/home/tsykora/programs/odata_playing/Infinispan-cakery/response-time.csv"/>
+                <property name="path" value="response-time.csv"/>
             </destination>
         </reporter>
 
@@ -34,7 +34,7 @@
             </destination>
             <destination class="CSVDestination">
                 <period type="time" value="500"/>
-                <property name="path" value="/home/tsykora/programs/odata_playing/Infinispan-cakery/throughput.csv"/>
+                <property name="path" value="throughput.csv"/>
             </destination>
         </reporter>
 
