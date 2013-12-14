@@ -17,10 +17,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 import org.perfcake.message.Message;
 import org.perfcake.reporting.MeasurementUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
 
 /**
  * An abstract sender for both OData and REST Sender.
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IspnCakeryODataAndRestSender extends AbstractSender {
 
-    private Logger log = LoggerFactory.getLogger(IspnCakeryODataAndRestSender.class);
+    private Logger log = Logger.getLogger(IspnCakeryODataAndRestSender.class);
 
     // we will reuse this client object
     private CloseableHttpClient httpClient = HttpClients.createDefault();

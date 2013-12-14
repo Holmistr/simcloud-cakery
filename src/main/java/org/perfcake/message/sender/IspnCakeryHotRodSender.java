@@ -4,13 +4,12 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 import org.perfcake.message.Message;
 import org.perfcake.reporting.MeasurementUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An abstract sender for Hot Rod.
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IspnCakeryHotRodSender extends AbstractSender {
 
-    private Logger log = LoggerFactory.getLogger(IspnCakeryHotRodSender.class);
+    private Logger log = Logger.getLogger(IspnCakeryHotRodSender.class);
 
     // Every thread in the scenario is about to run init() but we need to run it only once.
     private boolean initDone = false;
