@@ -1,0 +1,22 @@
+.gitignore~
+
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Target #
+/target/*
+
+# Idea #
+.idea/*
+*.iml
+
+# results #
+response-time.csv
+throughput.csv
+
+
+

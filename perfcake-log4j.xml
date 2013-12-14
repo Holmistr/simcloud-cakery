@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<!--
+   For more configuration infromation and examples see the Apache Log4j website: http://logging.apache.org/log4j/
+ -->
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="true">
+
+   <!-- A time/date based rolling appender -->
+
+   <!--<appender name="FILE" class="org.apache.log4j.FileAppender">-->
+      <!--<param name="File" value="perfcake.log"/>-->
+   <!--&lt;!&ndash;<appender name="FILE" class="org.infinispan.util.logging.log4j.CompressedFileAppender">&ndash;&gt;-->
+      <!--&lt;!&ndash;<param name="File" value="infinispan.log.gz"/>&ndash;&gt;-->
+      <!--<param name="Append" value="false"/>-->
+      <!--<param name="Threshold" value="ALL"/>-->
+      <!--<layout class="org.apache.log4j.PatternLayout">-->
+         <!--&lt;!&ndash; The default pattern: Date Priority (Thread) [Category] Message\n &ndash;&gt;-->
+         <!--<param name="ConversionPattern" value="%d %-5p (%t) [%c] %m%n"/>-->
+         <!--&lt;!&ndash; The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n-->
+        <!--<param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>-->
+         <!--&ndash;&gt;-->
+      <!--</layout>-->
+   <!--</appender>-->
+
+   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+      <param name="Threshold" value="DEBUG"/>
+      <param name="Target" value="System.out"/>
+
+      <layout class="org.apache.log4j.PatternLayout">
+         <!-- The default pattern: Date Priority [Category] Message\n -->
+         <param name="ConversionPattern" value="%d %-5p [%c{1}] (%t) %m%n"/>
+      </layout>
+   </appender>
+
+   <!-- ================ -->
+   <!-- Limit categories -->
+   <!-- ================ -->
+
+   <category name="org.perfcake">
+      <priority value="DEBUG"/>
+   </category>
+
+   <category name="org.infinispan">
+      <priority value="INFO"/>
+   </category>
+
+   <category name="org.infinispan.distribution">
+      <priority value="DEBUG"/>
+   </category>
+
+   <category name="org.infinispan.marshall">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="org.infinispan.profiling">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="org.infinispan.jmx">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="org.infinispan.factories">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="org.infinispan.client.hotrod">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="org.infinispan.lucene">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="com.mchange">
+      <priority value="WARN"/>
+   </category>
+
+   <category name="org.jgroups">
+      <priority value="DEBUG"/>
+   </category>
+
+<!--   <category name="org.infinispan.test">
+      <priority value="TRACE"/>
+   </category> -->
+
+
+   <!-- ======================= -->
+   <!-- Setup the Root category -->
+   <!-- ======================= -->
+
+   <root>
+      <priority value="ALL"/>
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+   </root>
+
+</log4j:configuration>
+

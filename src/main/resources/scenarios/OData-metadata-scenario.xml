@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario xmlns="urn:perfcake:scenario:1.0">
+  <!--<generator class="DefaultMessageGenerator" threads="${threads}">-->
+    <!--<run type="${runType}" value="${duration}" />-->
+    <!--<property name="threadQueueSize" value="${threadQueueSize}" />-->
+  <!--</generator>-->
+    <generator class="DefaultMessageGenerator" threads="1">
+    <run type="iteration" value="1" />
+    <!--<run type="iteration" value="1" />-->
+    <property name="threadQueueSize" value="10000" />
+    </generator>
+  <!--<sender class="HTTPSender">-->
+  <sender class=" !!!!!!!!!!!! TODO-SETUP-SENDER-HERE !!!!!!!!!!!! ">
+      <!--value="http://${server.host}:${server.port}/mySpecialNamedCache_get/key=%27person1%27" />-->
+      <!--value="http://localhost:8887/ODataInfinispanEndpoint.svc/mySpecialNamedCache_get/key=%27person1%27" />-->
+    <property name="target" value="http://localhost:8887/ODataInfinispanEndpoint.svc/$metadata"/>
+    <!--<property name="target" value="http://localhost:8887/ODataInfinispanEndpoint.svc/mySpecialNamedCache_get/key=%27person1%27"/>-->
+    <property name="method" value="GET" />
+    <property name="expectedResponseCodes" value="200,201,202"/>
+    <!--<property name="expectedResponseCodes" value="404"/>-->
+
+  </sender>
+
+    <reporting>
+
+        <reporter class="ResponseTimeReporter">
+            <destination class="ConsoleDestination">
+                <period type="time" value="500"/>
+            </destination>
+            <destination class="CSVDestination">
+                <period type="time" value="500"/>
+                <property name="path" value="/home/tsykora/programs/odata_playing/Infinispan-cakery/response-time.csv" />
+            </destination>
+        </reporter>
+
+        <reporter class="AverageThroughputReporter">
+            <destination class="ConsoleDestination">
+                <period type="time" value="500"/>
+            </destination>
+            <destination class="CSVDestination">
+                <period type="time" value="500"/>
+                <property name="path" value="/home/tsykora/programs/odata_playing/Infinispan-cakery/throughput.csv"/>
+            </destination>
+        </reporter>
+
+        <!--<property name="tags" value="" />-->
+        <!--<property name="uniqueId" value="REST-basic-scenario" />-->
+        <!--<reporter class="ATReporter">-->
+            <!--<property name="label_type" value="Iteration" />-->
+            <!--<destination class="CsvDestination">-->
+                <!--<property name="periodicity" value="1it" />-->
+                <!--<property name="outputPath" value="logs" />-->
+            <!--</destination>-->
+            <!--<destination class="ConsoleDestination">-->
+                <!--<property name="periodicity" value="1it" />-->
+            <!--</destination>-->
+        <!--</reporter>-->
+    </reporting>
+    <messages>
+        <message>
+            <!--<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />-->
+            <header name="Accept" value="application/json; charset=UTF-8, application/xml" />
+        </message>
+    </messages>
+
+
+
+
+
+
+  <!--<reporting>-->
+    <!--<reporter class="WarmUpReporter" enabled="${warmUp}">-->
+      <!--<property name="minimalWarmUpCount" value="${minimalWarmUpCount}" />-->
+      <!--<property name="relativeThreshold" value="${relativeThreshold}" />-->
+    <!--</reporter>-->
+    <!--<reporter class="AverageThroughputReporter">-->
+      <!--<destination class="CSVDestination">-->
+        <!--<period type="${periodType}" value="${periodicity}" />-->
+        <!--<property name="path" value="${scenario}-AT.csv" />-->
+      <!--</destination>-->
+      <!--<destination class="ConsoleDestination">-->
+        <!--<period type="${periodType}" value="${periodicity}" />-->
+      <!--</destination>-->
+    <!--</reporter>-->
+  <!--</reporting>-->
+  <!--<messages>-->
+    <!--<message>-->
+      <!--&lt;!&ndash; basic authentication guest:guest &ndash;&gt;-->
+      <!--<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />-->
+      <!--<header name="Accept" value="application/xml" />-->
+    <!--</message>-->
+  <!--</messages>-->
+</scenario>
+
