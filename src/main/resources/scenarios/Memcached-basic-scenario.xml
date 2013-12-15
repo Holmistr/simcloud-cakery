@@ -11,6 +11,14 @@
 
     <reporting>
 
+        <!--measuring subsets of response time results -->
+        <!--<reporter class="WindowResponseTimeReporter">-->
+            <!--<property name="windowSize" value="1024"/>-->
+            <!--<destination class="ConsoleDestination">-->
+            <!--<period type="time" value="1000"/>-->
+            <!--</destination>-->
+        <!--</reporter>-->
+
         <reporter class="ResponseTimeReporter">
             <destination class="ConsoleDestination">
                 <period type="time" value="1000"/>
@@ -28,6 +36,18 @@
             <destination class="CSVDestination">
                 <period type="time" value="1000"/>
                 <property name="path" value="throughput.csv"/>
+            </destination>
+        </reporter>
+
+        <reporter class="MemoryUsageReporter">
+            <property name="agentHostname" value="${memcached.host}"/>
+            <property name="agentPort" value="8850"/>
+            <destination class="ConsoleDestination">
+                <period type="time" value="2000"/>
+            </destination>
+            <destination class="CSVDestination">
+                <period type="time" value="2000"/>
+                <property name="path" value="memusage.csv"/>
             </destination>
         </reporter>
 

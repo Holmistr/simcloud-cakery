@@ -56,6 +56,18 @@
             </destination>
         </reporter>
 
+        <reporter class="MemoryUsageReporter">
+            <property name="agentHostname" value="${odataOrRestHost}"/>
+            <property name="agentPort" value="8850"/>
+            <destination class="ConsoleDestination">
+                <period type="time" value="2000"/>
+            </destination>
+            <destination class="CSVDestination">
+                <period type="time" value="2000"/>
+                <property name="path" value="memusage.csv"/>
+            </destination>
+        </reporter>
+
     </reporting>
     <!--<messages>-->
         <!--<message>-->

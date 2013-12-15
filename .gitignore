@@ -17,6 +17,7 @@
 # results #
 response-time.csv
 throughput.csv
+memusage.csv
 
 
 
