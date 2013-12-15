@@ -40,7 +40,7 @@
         </reporter>
 
         <reporter class="MemoryUsageReporter">
-            <property name="agentHostname" value="${memcached.host}"/>
+            <property name="agentHostname" value="${perfcake.agent.host}"/>
             <property name="agentPort" value="8850"/>
             <destination class="ConsoleDestination">
                 <period type="time" value="2000"/>
