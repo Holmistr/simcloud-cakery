@@ -15,3 +15,5 @@ For benchmarking Infinispan REST server:
 mvn clean package exec:java -Dscenario=OData-and-REST-scenario -Dthreads=1 -DrunType=time -Dduration=60000
  -DthreadQueueSize=30000 -DserviceUri=http://localhost:8080/rest/
  -DcacheName=default -DnumberOfEntries=1000
+
+Just Christmas commit :P
