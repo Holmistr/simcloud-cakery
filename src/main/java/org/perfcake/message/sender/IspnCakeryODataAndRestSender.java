@@ -54,6 +54,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     // TODO: add defaults
     private String serviceUri;
     private String cacheName;
+    private String perfcakeAgentHost;
     private int numOfEntries = 1;
     private int requestSleepTimeMillis = 0;
 
@@ -80,6 +81,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //      String cacheName = "mySpecialNamedCache" "defaultCache"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
+        perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
 
         if (System.getProperty("requestSleepTimeMillis") != null) {
             requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
@@ -107,18 +109,18 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
             for (int i = 1; i <= numOfEntries; i++) {
 
-                if (i % 100 == 0) {
-                    log.info("\n" + i + "\n");
-//                    if (jsonPerson != null) log.info(jsonPerson.toString());
-                }
-
-                entryKey = "person" + i;
+                entryKey = "person" + i + "-" + perfcakeAgentHost;
                 jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
+
+                if (i % 100 == 0) {
+                    log.info("\n" + i + " entryKey = " + entryKey + "\n");
+//                    if (jsonPerson != null) log.info(jsonPerson.toString());
+                }
+
                 if (serviceUri.contains(".svc")) {
                     // OData
-                    entryKey = entryKey + "_" + serviceUri;
                     post = serviceUri + "" + cacheName + "_put?IGNORE_RETURN_VALUES=%27true%27&key=%27" + entryKey + "%27";
                 } else {
                     // REST
@@ -196,7 +198,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         if (serviceUri.contains(".svc")) {
             // OData service operation approach
             get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries) + 1) +
-                    "_" + serviceUri + "%27";
+                    "-" + perfcakeAgentHost + "%27";
 
             // OData interface approach (NOT SUPPORTED YET)
             // + this is slow, problems with a closing of streams
@@ -205,7 +207,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
         } else {
             // REST
-            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries) + 1;
+            get = serviceUri + "" + cacheName + "/person" + (rand.nextInt(numOfEntries) + 1) + "-" + perfcakeAgentHost;
         }
 
         HttpGet httpGet = new HttpGet(get);
