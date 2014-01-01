@@ -75,8 +75,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     public void init() throws Exception {
 
 //      OData: http://localhost:8887/ODataInfinispanEndpoint.svc/
+//      OData: http://{bind_node}:8887/ODataInfinispanEndpoint.svc/
 //      Rest: http://127.0.0.1:8080/rest/
-//      String cacheName = "mySpecialNamedCache" "default"
+//      String cacheName = "mySpecialNamedCache" "defaultCache"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
 
@@ -111,13 +112,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //                    if (jsonPerson != null) log.info(jsonPerson.toString());
                 }
 
-                // TODO
-                // TODO - it needs UNIQUE key in dependence on ${perfcake.agent.host}
-                // TODO -- this is host of running server where entries will be put
-                // TODO
-
-
-                entryKey = "person" + i;
+                entryKey = "person" + i + "_" + serviceUri;
                 jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
@@ -199,7 +194,8 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         String get;
         if (serviceUri.contains(".svc")) {
             // OData service operation approach
-            get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries) + 1) + "%27";
+            get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries) + 1) +
+                    "_" + serviceUri + "%27";
 
             // OData interface approach (NOT SUPPORTED YET)
             // + this is slow, problems with a closing of streams
@@ -208,7 +204,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
         } else {
             // REST
-            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries);
+            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries) + "_" + serviceUri;
         }
 
         HttpGet httpGet = new HttpGet(get);
