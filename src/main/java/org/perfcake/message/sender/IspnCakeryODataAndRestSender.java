@@ -25,20 +25,18 @@ import org.perfcake.message.Message;
 import org.perfcake.reporting.MeasurementUnit;
 
 
-
 /**
  * A mutual sender for both OData and REST.
  * <p/>
  * It makes sure that approach for measuring Infinispan OData and REST server
  * is consistent and there are used only different URIs, hosts, ports, etc. in this Sender.
- *
+ * <p/>
  * <p/>
  * An entry is generated JSON document with unique ID, approximately about 20 KB+ size.
  * 20 k entries occupy approx. 450 MB of heap size.
  * 40 k entries ~~> 900 MB x numOfOwner=2 (dist mode) ~~> approx. 1,8 GB of data.
- *
+ * <p/>
  * Server started with Xmx and Xms=4096m, no more than a half of heap size should be occupied (JDG QE).
- *
  */
 public class IspnCakeryODataAndRestSender extends AbstractSender {
 
@@ -49,6 +47,8 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
     // Every thread in the scenario is about to run init() but we need to run it only once.
     private boolean initDone = false;
+    // Retry to repeat failed put just once.
+    private boolean failedPutRetried = false;
 
     // parameters passed as System properties using -Dproperty=value
     // TODO: add defaults
@@ -111,6 +111,12 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //                    if (jsonPerson != null) log.info(jsonPerson.toString());
                 }
 
+                // TODO
+                // TODO - it needs UNIQUE key in dependence on ${perfcake.agent.host}
+                // TODO -- this is host of running server where entries will be put
+                // TODO
+
+
                 entryKey = "person" + i;
                 jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
@@ -137,16 +143,30 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                     System.out.println("Response code of http post: " + response.getStatusLine().getStatusCode());
                     EntityUtils.consume(response.getEntity());
 
+                    // reset failure notificator for next put
+                    failedPutRetried = false;
+
                 } catch (NoHttpResponseException e) {
                     // server failed to respond -- retry, it is needed to store that object
-                    i--;
-                    log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
-                    numOfPutErrors++;
+                    if (!failedPutRetried) {
+                        i--;
+                        log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
+                        numOfPutErrors++;
+                        failedPutRetried = true;
+                    } else {
+                        log.error("This put was already retried and failed again - give up, i = " + i + " " + e.getMessage());
+                    }
+
                 } catch (SocketException e) {
                     // server failed to respond -- retry, it is needed to store that object
-                    i--;
-                    log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
-                    numOfPutErrors++;
+                    if (!failedPutRetried) {
+                        i--;
+                        log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
+                        numOfPutErrors++;
+                        failedPutRetried = true;
+                    } else {
+                        log.error("This put was already retried and failed again - give up, i = " + i + " " + e.getMessage());
+                    }
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (ClientProtocolException e) {
@@ -179,7 +199,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         String get;
         if (serviceUri.contains(".svc")) {
             // OData service operation approach
-            get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries)+1) + "%27";
+            get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries) + 1) + "%27";
 
             // OData interface approach (NOT SUPPORTED YET)
             // + this is slow, problems with a closing of streams
@@ -246,7 +266,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     /**
      * Return OData standardized JSON (represented as String)
      * This can be passed as content (StringEntity) of HTTP POST request
-     *
+     * <p/>
      * // TODO -- generate large entries of size passed by -Dproperty
      * // TODO -- move it to UTILs class (Entry generation  is the same for all Senders)
      *
