@@ -3,10 +3,13 @@ package org.perfcake.message.sender;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -24,31 +27,39 @@ import org.perfcake.reporting.MeasurementUnit;
 
 
 /**
- * An abstract sender for both OData and REST Sender.
+ * A mutual sender for both OData and REST.
  * <p/>
  * It makes sure that approach for measuring Infinispan OData and REST server
- * is consistent and we are using only different URIs, hosts, ports, etc.
+ * is consistent and there are used only different URIs, hosts, ports, etc. in this Sender.
+ *
+ * <p/>
+ * An entry is generated JSON document with unique ID, approximately about 20 KB+ size.
+ * 20 k entries occupy approx. 450 MB of heap size.
+ * 40 k entries ~~> 900 MB x numOfOwner=2 (dist mode) ~~> approx. 1,8 GB of data.
+ *
+ * Server started with Xmx and Xms=4096m, no more than a half of heap size should be occupied (JDG QE).
+ *
  */
 public class IspnCakeryODataAndRestSender extends AbstractSender {
 
     private Logger log = Logger.getLogger(IspnCakeryODataAndRestSender.class);
 
-    // we will reuse this client object
     private CloseableHttpClient httpClient = HttpClients.createDefault();
     private CloseableHttpClient httpClientForPost = HttpClients.createDefault();
 
     // Every thread in the scenario is about to run init() but we need to run it only once.
     private boolean initDone = false;
+
     // parameters passed as System properties using -Dproperty=value
     // TODO: add defaults
     private String serviceUri;
     private String cacheName;
     private int numOfEntries = 1;
-
     private int requestSleepTimeMillis = 0;
 
     private Random rand = new Random();
-
+    private volatile int numOfPutErrors = 0;
+    private volatile int numOfGetErrors = 0;
 
     /**
      * This method is called once by each thread for needed initializations.
@@ -68,38 +79,42 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //      String cacheName = "mySpecialNamedCache" "default"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
-        requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
 
-        System.out.println("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
+        if (System.getProperty("requestSleepTimeMillis") != null) {
+            requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
+        }
+        log.info("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
 
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
         initDone = Boolean.parseBoolean(System.getProperty("initDone"));
 
-        // need to decide according to some parent object because every thread has it's own init
+        // each thread in PerfCake is about to process its own init() method once.
         if (!initDone) {
 
-            System.out.println("Setting system property initDone to value: true... other threads should see it.");
-            // immediately let other threads know that this is Thread responsible for filling cache
+            log.info("Setting system property initDone to value: true... other threads should see it.");
+            // this Thread is responsible for filling cache
             System.setProperty("initDone", "true");
             initDone = true;
 
             long start = System.currentTimeMillis();
 
-            System.out.println("Doing Init in " + this.getClass().getName());
+            log.info("Starting init() method in: " + this.getClass().getName());
+
+            String entryKey;
+            String jsonPerson = null;
+            String post;
 
             for (int i = 1; i <= numOfEntries; i++) {
 
-                Thread.sleep(50);
-
                 if (i % 100 == 0) {
-                    System.out.println("\n\n\n " + i + "\n\n\n");
+                    log.info("\n" + i + "\n");
+//                    if (jsonPerson != null) log.info(jsonPerson.toString());
                 }
 
-                String entryKey = "person" + i;
-                String jsonPerson = createJsonPersonString(
+                entryKey = "person" + i;
+                jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
-                String post;
                 if (serviceUri.contains(".svc")) {
                     // OData
                     post = serviceUri + "" + cacheName + "_put?IGNORE_RETURN_VALUES=%27true%27&key=%27" + entryKey + "%27";
@@ -122,6 +137,16 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                     System.out.println("Response code of http post: " + response.getStatusLine().getStatusCode());
                     EntityUtils.consume(response.getEntity());
 
+                } catch (NoHttpResponseException e) {
+                    // server failed to respond -- retry, it is needed to store that object
+                    i--;
+                    log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
+                    numOfPutErrors++;
+                } catch (SocketException e) {
+                    // server failed to respond -- retry, it is needed to store that object
+                    i--;
+                    log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
+                    numOfPutErrors++;
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (ClientProtocolException e) {
@@ -131,10 +156,10 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                 }
             }
 
-            System.out.println("\n\n Init method took: " + (System.currentTimeMillis() - start));
+            log.info("\n\n Init method took: " + (System.currentTimeMillis() - start) + " milliseconds");
+            log.info("\n\n Number of errors during Init method (numberOfPutErrors): " + numOfPutErrors + " \n");
         } else {
-            System.out.println("Init() method was already initialized by the first thread, skipping to doSend().");
-            log.info("Init() method was already initialized by the first thread, skipping to doSend().");
+            log.info("Init() method was already initialized by the first thread; skipping init().");
         }
     }
 
@@ -157,9 +182,10 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
             get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries)+1) + "%27";
 
             // OData interface approach (NOT SUPPORTED YET)
-            // + this is slow, OData is not closing streams
-            // (we use functional approach for workaround this, to gain control over output stream)
+            // + this is slow, problems with a closing of streams
+            // (we use OData service operations as a workaround; to gain control over output stream)
             // get = serviceUri + "" + cacheName + "%28%27" + "person" + (rand.nextInt(numOfEntries)+1) + "%27%29";
+
         } else {
             // REST
             get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries);
@@ -169,13 +195,21 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         httpGet.setHeader("Accept", "application/json; charset=UTF-8");
         try {
 
-            // reuse one client + set: echo "1" >/proc/sys/net/ipv4/tcp_tw_reuse
+            // reuse one client + set: echo "1" >/proc/sys/net/ipv4/tcp_tw_reuse (on local machine)
             CloseableHttpResponse response = httpClient.execute(httpGet);
 
+            if (response.getStatusLine().getStatusCode() == 404) {
+                // entry not found
+                numOfGetErrors++;
+                log.error("Status CODE = 404 for " + get + " \n numberOfGetErrors: " + numOfGetErrors);
+            }
+
             HttpEntity entity = response.getEntity();
+
             if (entity == null) {
-                System.out.println("Entity is null :( Bad returned? Nonexistent entry? " +
-                        get + " " + response.getStatusLine().getStatusCode());
+                numOfGetErrors++;
+                log.error("Entity is null :( Bad returned? Nonexistent entry? " +
+                        get + " " + response.getStatusLine().getStatusCode() + " numberOfGetErrors: " + numOfGetErrors);
                 return null;
             }
 
@@ -186,15 +220,24 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            numOfGetErrors++;
+            log.error("IOException during gets (probably overloaded), numberOfGetErrors: " + numOfGetErrors + " \n ");
+            e.printStackTrace();
+        } catch (Exception e) {
+            numOfGetErrors++;
+            log.error("Exception during gets (probably overloaded), numberOfGetErrors: " + numOfGetErrors + " \n ");
             e.printStackTrace();
         }
+
         return null;
     }
 
     @Override
     public void postSend(final Message message) {
         try {
-            Thread.sleep(requestSleepTimeMillis);
+            if (requestSleepTimeMillis > 0) {
+                Thread.sleep(requestSleepTimeMillis);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -203,6 +246,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     /**
      * Return OData standardized JSON (represented as String)
      * This can be passed as content (StringEntity) of HTTP POST request
+     *
+     * // TODO -- generate large entries of size passed by -Dproperty
+     * // TODO -- move it to UTILs class (Entry generation  is the same for all Senders)
      *
      * @param entityClass
      * @param id
@@ -217,27 +263,30 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
         StringBuilder sb = new StringBuilder();
 
-        // TODO: make it bigger + measure size of entry + pass entrySize=Xkb? and according to this
-        // TODO: system property passed for test scenario, generate such a big entries
-
-        // according do OData JSON format standard
-//        sb.append("{\"d\" : {\"jsonValue\" : ");
         sb.append("{");
         sb.append("\"entityClass\":\"" + entityClass + "\",\n");
         sb.append("\"id\":\"" + id + "\",\n");
         sb.append("\"gender\":\"" + gender + "\",\n");
         sb.append("\"firstName\":\"" + firstName + "\",\n");
         sb.append("\"lastName\":\"" + lastName + "\",\n");
-        sb.append("\"documentString\":\"" + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" + "\",\n");
+
+        // 1 java char = 2 bytes
+        // 100 000 chars = 200 000 bytes = approx. 200 KB
+        // 10 000 entries x 200 KB = approx. 2 GB of data
+        // or 20 000 entries with 50 000 chars = approx. 2 GB of data
+
+        // or 100 000 entries with 10 000 chars (=20 KB) (1 large document) = approx. 2 GB of data
+
+        // This is approximately 20 KB+ entry
+        char[] chars = new char[10000];
+        Arrays.fill(chars, 'x');
+        String payload = new String(chars);
+
+        sb.append("\"documentString\":\"" + payload + "\",\n");
+
         sb.append("\"age\":" + age + "\n");
         sb.append("}");
-//        sb.append("}}");
 
         return sb.toString();
     }
-
 }

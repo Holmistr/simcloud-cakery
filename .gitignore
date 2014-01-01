@@ -15,9 +15,13 @@
 *.iml
 
 # results #
+perfcake.log
+
+window-response-time.csv
 response-time.csv
 throughput.csv
 memusage.csv
+
 
 
 

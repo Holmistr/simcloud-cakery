@@ -1,6 +1,7 @@
 package org.perfcake.message.sender;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
@@ -140,6 +141,8 @@ public class IspnCakeryHotRodSender extends AbstractSender {
 
         StringBuilder sb = new StringBuilder();
 
+        // TODO - move this to utils
+
         // TODO: make it bigger + measure size of entry + pass entrySize=Xkb? and according to this
         // TODO: system property passed for test scenario, generate such big entries
 
@@ -151,11 +154,20 @@ public class IspnCakeryHotRodSender extends AbstractSender {
         sb.append("\"gender\":\"" + gender + "\",\n");
         sb.append("\"firstName\":\"" + firstName + "\",\n");
         sb.append("\"lastName\":\"" + lastName + "\",\n");
-        sb.append("\"documentString\":\"" + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" + "\",\n");
+
+        // 1000 -- 1 kb / KB?
+        char[] chars = new char[1000];
+        Arrays.fill(chars, 'x');
+        String payload = new String(chars);
+
+        sb.append("\"documentString\":\"" + payload + "\",\n");
+
+//        sb.append("\"documentString\":\"" + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+//                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
+//                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
+//                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
+//                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" + "\",\n");
+
         sb.append("\"age\":" + age + "\n");
         sb.append("}");
 //        sb.append("}}");
