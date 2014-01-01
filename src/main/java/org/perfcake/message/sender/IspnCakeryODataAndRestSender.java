@@ -112,12 +112,13 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //                    if (jsonPerson != null) log.info(jsonPerson.toString());
                 }
 
-                entryKey = "person" + i + "_" + serviceUri;
+                entryKey = "person" + i;
                 jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
                 if (serviceUri.contains(".svc")) {
                     // OData
+                    entryKey = entryKey + "_" + serviceUri;
                     post = serviceUri + "" + cacheName + "_put?IGNORE_RETURN_VALUES=%27true%27&key=%27" + entryKey + "%27";
                 } else {
                     // REST
@@ -204,7 +205,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
         } else {
             // REST
-            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries) + "_" + serviceUri;
+            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries);
         }
 
         HttpGet httpGet = new HttpGet(get);
