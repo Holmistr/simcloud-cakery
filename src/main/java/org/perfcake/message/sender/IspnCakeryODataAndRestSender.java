@@ -205,7 +205,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
         } else {
             // REST
-            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries);
+            get = serviceUri + "" + cacheName + "/person" + rand.nextInt(numOfEntries) + 1;
         }
 
         HttpGet httpGet = new HttpGet(get);
