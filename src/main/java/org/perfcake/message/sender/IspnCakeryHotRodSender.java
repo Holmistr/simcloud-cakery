@@ -87,6 +87,10 @@ public class IspnCakeryHotRodSender extends AbstractSender {
                 String jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
+                if (i % 100 == 0) {
+                    log.info("\n" + i + " entryKey = " + entryKey + "\n");
+                }
+
                 cache.put(entryKey, jsonPerson);
             }
 

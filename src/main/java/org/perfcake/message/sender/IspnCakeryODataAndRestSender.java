@@ -116,7 +116,6 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
                 if (i % 100 == 0) {
                     log.info("\n" + i + " entryKey = " + entryKey + "\n");
-//                    if (jsonPerson != null) log.info(jsonPerson.toString());
                 }
 
                 if (serviceUri.contains(".svc")) {
