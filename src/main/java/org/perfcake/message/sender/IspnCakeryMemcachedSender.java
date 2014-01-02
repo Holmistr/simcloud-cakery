@@ -2,6 +2,7 @@ package org.perfcake.message.sender;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
@@ -24,6 +25,8 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
     private int requestSleepTimeMillis = 0;
     private Random rand = new Random();
+
+    private String perfcakeAgentHost;
 
     static final String ENCODING = "UTF-8";
     private MemcachedClient mc1;
@@ -48,6 +51,8 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
         initDone = Boolean.parseBoolean(System.getProperty("initDone"));
+
+        perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
 
         mc1 = new MemcachedClient(ENCODING, System.getProperty("memcached.host"), 11211, 10000); // to run against
 
@@ -97,8 +102,9 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
         r = rand.nextInt(numOfEntries)+1;
 
-        if (mc1.get("person" + r) == null) {
-            throw new Exception("HotRod: value for key person" + r + " is NULL");
+        if (mc1.get("person" + r + "-" + perfcakeAgentHost) == null) {
+            log.error("Memcached: Entity is null :( Bad returned? Nonexistent entry? Entry key: " + ("person" + r + "-" + perfcakeAgentHost));
+            throw new Exception("Memcached: value for key person" + r + " is NULL");
         }
 
         return null;
@@ -107,7 +113,9 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
     @Override
     public void postSend(final Message message) {
         try {
-            Thread.sleep(requestSleepTimeMillis);
+            if (requestSleepTimeMillis > 0) {
+                Thread.sleep(requestSleepTimeMillis);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -116,6 +124,9 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
     /**
      * Return OData standardized JSON (represented as String)
      * This can be passed as content (StringEntity) of HTTP POST request
+     * <p/>
+     * // TODO -- generate large entries of size passed by -Dproperty
+     * // TODO -- move it to UTILs class (Entry generation  is the same for all Senders)
      *
      * @param entityClass
      * @param id
@@ -130,25 +141,29 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
         StringBuilder sb = new StringBuilder();
 
-        // TODO: make it bigger + measure size of entry + pass entrySize=Xkb? and according to this
-        // TODO: system property passed for test scenario, generate such big entries
-
-        // according do OData JSON format standard
-//        sb.append("{\"d\" : {\"jsonValue\" : ");
         sb.append("{");
         sb.append("\"entityClass\":\"" + entityClass + "\",\n");
         sb.append("\"id\":\"" + id + "\",\n");
         sb.append("\"gender\":\"" + gender + "\",\n");
         sb.append("\"firstName\":\"" + firstName + "\",\n");
         sb.append("\"lastName\":\"" + lastName + "\",\n");
-        sb.append("\"documentString\":\"" + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ " +
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ" + "\",\n");
+
+        // 1 java char = 2 bytes
+        // 100 000 chars = 200 000 bytes = approx. 200 KB
+        // 10 000 entries x 200 KB = approx. 2 GB of data
+        // or 20 000 entries with 50 000 chars = approx. 2 GB of data
+
+        // or 100 000 entries with 10 000 chars (=20 KB) (1 large document) = approx. 2 GB of data
+
+        // This is approximately 20 KB+ entry
+        char[] chars = new char[10000];
+        Arrays.fill(chars, 'x');
+        String payload = new String(chars);
+
+        sb.append("\"documentString\":\"" + payload + "\",\n");
+
         sb.append("\"age\":" + age + "\n");
         sb.append("}");
-//        sb.append("}}");
 
         return sb.toString();
     }
