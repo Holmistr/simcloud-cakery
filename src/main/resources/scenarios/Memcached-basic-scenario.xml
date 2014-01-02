@@ -25,7 +25,7 @@
 
         <reporter class="WarmUpReporter" enabled="true">
             <!-- Iteration count does not matter -->
-            <property name="minimalWarmUpCount" value="0"/>
+            <property name="minimalWarmUpCount" value="100"/>
             <property name="minimalWarmUpDuration" value="${warmupDuration}"/>
             <property name="relativeThreshold" value="0.50"/> <!-- 0.005 = 0.5% -->
             <property name="absoluteThreshold" value="500"/> <!-- iterations / s -->
