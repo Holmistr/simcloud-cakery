@@ -113,7 +113,7 @@ public class IspnCakeryHotRodSender extends AbstractSender {
 
         if (cache.get("person" + r + "-" + perfcakeAgentHost) == null) {
             log.error("HotRod: Entity is null :( Bad returned? Nonexistent entry? Entry key: " + ("person" + r + "-" + perfcakeAgentHost));
-            throw new Exception("HotRod: value for key person" + r + " is NULL");
+            throw new Exception("HotRod: value for key person" + r + "-" + perfcakeAgentHost + " is NULL");
         }
         return null;
     }
