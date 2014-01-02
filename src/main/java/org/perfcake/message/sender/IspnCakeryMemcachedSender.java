@@ -1,6 +1,5 @@
 package org.perfcake.message.sender;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
@@ -89,11 +88,7 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
     @Override
     public void close() {
-        try {
-            mc1.close();
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
+        // nop
     }
 
     @Override
@@ -107,7 +102,8 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
         r = rand.nextInt(numOfEntries)+1;
 
         if (mc1.get("person" + r + "-" + perfcakeAgentHost) == null) {
-            log.error("Memcached: Entity is null :( Bad returned? Nonexistent entry? Entry key: " + ("person" + r + "-" + perfcakeAgentHost));
+            log.error("Memcached: Entity is null :( Bad returned? Nonexistent entry? Entry key: " +
+                    ("person" + r + "-" + perfcakeAgentHost));
             throw new Exception("Memcached: value for key person" + r + "-" + perfcakeAgentHost + " is NULL");
         }
 
