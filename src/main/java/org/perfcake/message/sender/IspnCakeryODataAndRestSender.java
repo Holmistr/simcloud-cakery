@@ -114,6 +114,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
 
+                System.out.println(" \n\n\n getBytes length " + jsonPerson.getBytes().length +
+                        " just lenthg: " + jsonPerson.length() + "\n\n\n");
+
                 if (i % 100 == 0) {
                     log.info("\n" + i + " entryKey = " + entryKey + "\n");
                 }
@@ -267,6 +270,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
      * <p/>
      * // TODO -- generate large entries of size passed by -Dproperty
      * // TODO -- move it to UTILs class (Entry generation  is the same for all Senders)
+     * // TODO -- so not create StringBuilder object for every put
      *
      * @param entityClass
      * @param id
@@ -290,12 +294,12 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
         // 1 java char = 2 bytes
         // 100 000 chars = 200 000 bytes = approx. 200 KB
-        // 10 000 entries x 200 KB = approx. 2 GB of data
+        // 10 000 entries x 200 kB = approx. 2 GB of data
         // or 20 000 entries with 50 000 chars = approx. 2 GB of data
 
-        // or 100 000 entries with 10 000 chars (=20 KB) (1 large document) = approx. 2 GB of data
+        // or 100 000 entries with 10 000 chars (=20 kB) (1 large document) = approx. 2 GB of data
 
-        // This is approximately 20 KB+ entry
+        // This is approximately 20,3 kB entry
         char[] chars = new char[10000];
         Arrays.fill(chars, 'x');
         String payload = new String(chars);

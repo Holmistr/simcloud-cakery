@@ -84,6 +84,11 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
         } else {
             log.info("Init() method was already initialized by the first thread, skipping to doSend().");
         }
+
+        log.info("\nThis is MEMCACHED Sender... init() was done, sleeping 30 seconds " +
+                "to wait for other servers in a cluster\n");
+        Thread.sleep(30000);
+
     }
 
     @Override
@@ -104,7 +109,7 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
         if (mc1.get("person" + r + "appendix" + perfcakeAgentHost) == null) {
             log.error("Memcached: Entity is null :( Bad returned? Nonexistent entry? Entry key: " +
                     ("person" + r + "appendix" + perfcakeAgentHost));
-            throw new Exception("Memcached: value for key person" + r + "-" + perfcakeAgentHost + " is NULL");
+            throw new Exception("Memcached: value for key person" + r + "appendix" + perfcakeAgentHost + " is NULL");
         }
 
         return null;
