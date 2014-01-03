@@ -69,7 +69,7 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
             for (int i = 1; i <= numOfEntries; i++) {
 
-                String entryKey = "person" + i + "-" + perfcakeAgentHost;
+                String entryKey = "person" + i + "appendix" + perfcakeAgentHost;
                 String jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
@@ -101,9 +101,9 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
 
         r = rand.nextInt(numOfEntries)+1;
 
-        if (mc1.get("person" + r + "-" + perfcakeAgentHost) == null) {
+        if (mc1.get("person" + r + "appendix" + perfcakeAgentHost) == null) {
             log.error("Memcached: Entity is null :( Bad returned? Nonexistent entry? Entry key: " +
-                    ("person" + r + "-" + perfcakeAgentHost));
+                    ("person" + r + "appendix" + perfcakeAgentHost));
             throw new Exception("Memcached: value for key person" + r + "-" + perfcakeAgentHost + " is NULL");
         }
 
