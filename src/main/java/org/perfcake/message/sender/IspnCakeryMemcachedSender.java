@@ -81,14 +81,15 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
             }
 
             log.info("\n Init method took: " + (System.currentTimeMillis() - start));
+
+            // sleep just in this loader/init thread
+            log.info("\nThis is MEMCACHED Sender... init() was done, sleeping 60 seconds " +
+                    "to wait for other servers in a cluster\n");
+            Thread.sleep(60000);
+
         } else {
             log.info("Init() method was already initialized by the first thread, skipping to doSend().");
         }
-
-        log.info("\nThis is MEMCACHED Sender... init() was done, sleeping 30 seconds " +
-                "to wait for other servers in a cluster\n");
-        Thread.sleep(30000);
-
     }
 
     @Override
