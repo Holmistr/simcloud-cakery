@@ -16,6 +16,11 @@ import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 
 /**
+ *
+ * Originally located at:
+ * https://github.com/infinispan/infinispan/blob/master/server/integration/testsuite/
+ * src/test/java/org/infinispan/server/test/client/memcached/MemcachedClient.java
+ *
  * A Really simple Memcached client/helper.
  *
  * @author <a href="mailto:mlinhard@redhat.com">Michal Linhard</a>

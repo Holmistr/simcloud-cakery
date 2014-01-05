@@ -192,11 +192,16 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
 
         // OData service operation approach
 
-        get = serviceUri + "" + cacheName +
-                "_get?$filter=id%20eq%20%27" + "person" + (rand.nextInt(numOfEntries) + 1) + "appendix" + perfcakeAgentHost + "%27" +
-                "%20and%20firstName%20eq%20%27John%27";
+//        get = serviceUri + "" + cacheName +
+//                "_get?$filter=id%20eq%20%27" + "person" + (rand.nextInt(numOfEntries) + 1) + "appendix" + perfcakeAgentHost + "%27" +
+//                "%20and%20firstName%20eq%20%27John%27";
 
-        // OData interface approach (NOT SUPPORTED YET)
+
+        get = serviceUri + "" + cacheName +
+                "_get?$filter=id%20eq%20%27" + "person" + (rand.nextInt(numOfEntries) + 1) + "appendix" + perfcakeAgentHost + "%27";
+
+
+                // OData interface approach (NOT SUPPORTED YET)
         // + this is slow, problems with a closing of streams
         // (we use OData service operations as a workaround; to gain control over output stream)
         // get = serviceUri + "" + cacheName + "%28%27" + "person" + (rand.nextInt(numOfEntries)+1) + "%27%29";
