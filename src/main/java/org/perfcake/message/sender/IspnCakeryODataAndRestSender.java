@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
@@ -297,11 +296,11 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         // or 100 000 entries with 10 000 chars (=20 kB) (1 large document) = approx. 2 GB of data
 
         // This is approximately 20,3 kB entry
-        char[] chars = new char[10000];
-        Arrays.fill(chars, 'x');
-        String payload = new String(chars);
-
-        sb.append("\"documentString\":\"" + payload + "\",\n");
+//        char[] chars = new char[10000];
+//        Arrays.fill(chars, 'x');
+//        String payload = new String(chars);
+//
+//        sb.append("\"documentString\":\"" + payload + "\",\n");
 
         sb.append("\"age\":" + age + "\n");
         sb.append("}");
