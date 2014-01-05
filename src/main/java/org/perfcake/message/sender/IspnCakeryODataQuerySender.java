@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
@@ -111,7 +110,7 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
 
                 entryKey = "person" + i + "appendix" + perfcakeAgentHost;
                 jsonPerson = createJsonPersonString(
-                        "org.infinispan.odata.Person", "person" + i + "appendix" + perfcakeAgentHost, "MALE", "John", "Smith", 24);
+                        "org.infinispan.odata.Person", entryKey, "MALE", "John", "Smith", 24);
 
 
                 if (i % 100 == 0) {
@@ -290,11 +289,11 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
         // or 100 000 entries with 10 000 chars (=20 KB) (1 large document) = approx. 2 GB of data
 
         // This is approximately 20 KB+ entry
-        char[] chars = new char[10000];
-        Arrays.fill(chars, 'x');
-        String payload = new String(chars);
-
-        sb.append("\"documentString\":\"" + payload + "\",\n");
+//        char[] chars = new char[10000];
+//        Arrays.fill(chars, 'x');
+//        String payload = new String(chars);
+//
+//        sb.append("\"documentString\":\"" + payload + "\",\n");
 
         sb.append("\"age\":" + age + "\n");
         sb.append("}");

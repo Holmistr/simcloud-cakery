@@ -6,10 +6,10 @@
     <artifactId>Infinispan-cakery</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Infinispan Cakery - server load generator</name>
+    <name>Infinispan cakery - server load generator</name>
 
 <!-- Run as: -->
-<!-- mvn clean package -Dmaven.test.skip=true -Dperfcake.timestamp=$TIMESTAMP exec:java "$@"; -->
+<!-- mvn clean package exec:java "$@"; -->
 
     <repositories>
         <repository>
@@ -21,10 +21,9 @@
     </repositories>
 
     <properties>
-        <infinispan.version>6.0.0.Beta2</infinispan.version>
+        <infinispan.version>6.0.0.</infinispan.version>
         <perfcake.version>1.0</perfcake.version>
     </properties>
-
 
     <build>
         <pluginManagement>
@@ -61,13 +60,6 @@
                             <!--<argument>-DnumberOfEntries=${number.of.entries:3000}</argument>-->
                             <!--<argument>-Dserver.host=${server.host}</argument>-->
                             <!--<argument>-Dserver.port=${server.port}</argument>-->
-                            <!--<argument>-Dapplication.id=${application.id}</argument>-->
-                            <!--<argument>-Ddeployment.id=${deployment.id}</argument>-->
-                            <!--<argument>-DsessionPersistence=${sessionPersistence}</argument>-->
-                            <!--<argument>-DauditLogging=${auditLogging}</argument>-->
-                            <!--<argument>-Dthreads=${threads}</argument>-->
-                            <!--<argument>-DruntimeManager=${runtimeManager}</argument>-->
-                            <!--<argument>-Dtasks=${tasks}</argument>-->
                             <!--&lt;!&ndash; perfcake properties &ndash;&gt;-->
                             <!--<argument>-DwarmUp=${warmUp}</argument>-->
                             <!--<argument>-DminimalWarmUpCount=${minimalWarmUpCount}</argument>-->
@@ -99,23 +91,13 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <!--<resources>-->
-            <!--<resource>-->
-                <!--<directory>src/main/resources</directory>-->
-                <!--<filtering>false</filtering>-->
-            <!--</resource>-->
-            <!--<resource>-->
-                <!--<directory>src/main/filtered-resources</directory>-->
-                <!--<filtering>true</filtering>-->
-            <!--</resource>-->
-        <!--</resources>-->
     </build>
 
 
 
     <dependencies>
 
-        <!-- perfcake -->
+        <!-- PerfCake -->
         <dependency>
             <groupId>org.perfcake</groupId>
             <artifactId>perfcake</artifactId>
@@ -154,10 +136,17 @@
             <artifactId>infinispan-client-hotrod</artifactId>
             <version>${infinispan.version}</version>
         </dependency>
+
+        <!-- other dependencies -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <version>4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1-jbossorg-1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -174,12 +163,6 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>3.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1-jbossorg-1</version>
-        </dependency>
-
     </dependencies>
 
 </project>

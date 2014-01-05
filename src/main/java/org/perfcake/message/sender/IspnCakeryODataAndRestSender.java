@@ -113,10 +113,6 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                 jsonPerson = createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
-
-                System.out.println(" \n\n\n getBytes length " + jsonPerson.getBytes().length +
-                        " just lenthg: " + jsonPerson.length() + "\n\n\n");
-
                 if (i % 100 == 0) {
                     log.info("\n" + i + " entryKey = " + entryKey + "\n");
                 }
@@ -292,6 +288,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         sb.append("\"firstName\":\"" + firstName + "\",\n");
         sb.append("\"lastName\":\"" + lastName + "\",\n");
 
+        // Source: http://www.javamex.com/tutorials/memory/string_memory_usage.shtml
         // 1 java char = 2 bytes
         // 100 000 chars = 200 000 bytes = approx. 200 KB
         // 10 000 entries x 200 kB = approx. 2 GB of data
