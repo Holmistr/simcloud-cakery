@@ -1,4 +1,4 @@
-Infinispan-cakery is a performance stress project for (not only) Infinispan servers using PerfCake framework for benchmarking.
+Infinispan-cakery is a performance stress application for (not only) Infinispan servers using PerfCake framework.
 
 How to start it?
 
@@ -13,6 +13,7 @@ NOTE2: In order to measure memory uncomment MemoryUsageReporter in particular sc
 In that case, PerfCake agent need to run on measured system.
 Add -javaagent:/path/to/repository/org/perfcake/perfcake/1.0/perfcake-1.0.jar=hostname=127.0.0.1,port=8850 when starting server:
 
+Starting Infinispan OData server (or see its README.md)
 java -javaagent:/path/to/repository/org/perfcake/perfcake/1.0/perfcake-1.0.jar=hostname=127.0.0.1,port=8850
  -Xms512m -Xmx512m -Djava.net.preferIPv4Stack=true -jar /path/to/infinispan-odata-server-1.0-SNAPSHOT.jar
  http://localhost:8887/ODataInfinispanEndpoint.svc/ infinispan-dist.xml
