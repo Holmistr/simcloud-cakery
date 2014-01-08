@@ -65,15 +65,6 @@
                 <property name="path" value="memusage.csv"/>
             </destination>
         </reporter>
-
-
     </reporting>
-    <!--<messages>-->
-        <!--<message>-->
-            <!--&lt;!&ndash;<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />&ndash;&gt;-->
-            <!--<header name="Accept" value="application/json, application/xml"/>-->
-        <!--</message>-->
-    <!--</messages>-->
-
 </scenario>
 

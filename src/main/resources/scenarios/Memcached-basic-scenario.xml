@@ -62,49 +62,6 @@
                 <property name="path" value="memusage.csv"/>
             </destination>
         </reporter>
-
-        <!--<property name="tags" value="" />-->
-        <!--<property name="uniqueId" value="REST-basic-scenario" />-->
-        <!--<reporter class="ATReporter">-->
-        <!--<property name="label_type" value="Iteration" />-->
-        <!--<destination class="CsvDestination">-->
-        <!--<property name="periodicity" value="1it" />-->
-        <!--<property name="outputPath" value="logs" />-->
-        <!--</destination>-->
-        <!--<destination class="ConsoleDestination">-->
-        <!--<property name="periodicity" value="1it" />-->
-        <!--</destination>-->
-        <!--</reporter>-->
     </reporting>
-    <!--<messages>-->
-    <!--<message>-->
-    <!--<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />-->
-    <!--<header name="Accept" value="application/json, application/xml" />-->
-    <!--</message>-->
-    <!--</messages>-->
-
-
-    <!--<reporting>-->
-    <!--<reporter class="WarmUpReporter" enabled="${warmUp}">-->
-    <!--<property name="minimalWarmUpCount" value="${minimalWarmUpCount}" />-->
-    <!--<property name="relativeThreshold" value="${relativeThreshold}" />-->
-    <!--</reporter>-->
-    <!--<reporter class="AverageThroughputReporter">-->
-    <!--<destination class="CSVDestination">-->
-    <!--<period type="${periodType}" value="${periodicity}" />-->
-    <!--<property name="path" value="${scenario}-AT.csv" />-->
-    <!--</destination>-->
-    <!--<destination class="ConsoleDestination">-->
-    <!--<period type="${periodType}" value="${periodicity}" />-->
-    <!--</destination>-->
-    <!--</reporter>-->
-    <!--</reporting>-->
-    <!--<messages>-->
-    <!--<message>-->
-    <!--&lt;!&ndash; basic authentication guest:guest &ndash;&gt;-->
-    <!--<header name="Authorization" value="Basic Z3Vlc3Q6Z3Vlc3Q=" />-->
-    <!--<header name="Accept" value="application/xml" />-->
-    <!--</message>-->
-    <!--</messages>-->
 </scenario>
 

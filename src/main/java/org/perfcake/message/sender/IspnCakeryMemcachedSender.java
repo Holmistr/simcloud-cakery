@@ -1,7 +1,6 @@
 package org.perfcake.message.sender;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
@@ -9,10 +8,12 @@ import org.apache.log4j.Logger;
 import org.infinispan.cakery.MemcachedClient;
 import org.perfcake.message.Message;
 import org.perfcake.reporting.MeasurementUnit;
+import org.utils.IspnCakeryUtils;
 
 /**
- * An abstract sender for Hot Rod.
- * <p/>
+ * Sender for Memcached.
+ *
+ * @author Tomas Sykora <tomas@infinispan.org>
  */
 public class IspnCakeryMemcachedSender extends AbstractSender {
 
@@ -25,7 +26,7 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
     private int requestSleepTimeMillis = 0;
     private Random rand = new Random();
 
-    private String perfcakeAgentHost;
+    private String perfcakeAgentHost="";
 
     static final String ENCODING = "UTF-8";
     private MemcachedClient mc1;
@@ -51,11 +52,13 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
         initDone = Boolean.parseBoolean(System.getProperty("initDone"));
 
-        perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
+        if (System.getProperty("perfcake.agent.host") != null) {
+            perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
+        }
 
         mc1 = new MemcachedClient(ENCODING, System.getProperty("memcached.host"), 11211, 10000); // to run against
 
-        // need to decide according to some parent object because every thread has it's own init
+        // decide according to system property because every thread has it's own init
         if (!initDone) {
 
             log.info("Setting system property initDone to value: true... other threads should see it.");
@@ -67,10 +70,13 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
             long start = System.currentTimeMillis();
             log.info("Doing Init in " + this.getClass().getName());
 
+            String entryKey;
+            String jsonPerson;
+
             for (int i = 1; i <= numOfEntries; i++) {
 
-                String entryKey = "person" + i + "appendix" + perfcakeAgentHost;
-                String jsonPerson = createJsonPersonString(
+                entryKey = "person" + i + "appendix" + perfcakeAgentHost;
+                jsonPerson = IspnCakeryUtils.createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
                 if (i % 100 == 0) {
@@ -125,53 +131,6 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Return OData standardized JSON (represented as String)
-     * This can be passed as content (StringEntity) of HTTP POST request
-     * <p/>
-     * // TODO -- generate large entries of size passed by -Dproperty
-     * // TODO -- move it to UTILs class (Entry generation  is the same for all Senders)
-     *
-     * @param entityClass
-     * @param id
-     * @param gender
-     * @param firstName
-     * @param lastName
-     * @param age
-     * @return Standardized OData JSON person entity as String.
-     */
-    public static String createJsonPersonString(String entityClass, String id,
-                                                String gender, String firstName, String lastName, int age) {
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("{");
-        sb.append("\"entityClass\":\"" + entityClass + "\",\n");
-        sb.append("\"id\":\"" + id + "\",\n");
-        sb.append("\"gender\":\"" + gender + "\",\n");
-        sb.append("\"firstName\":\"" + firstName + "\",\n");
-        sb.append("\"lastName\":\"" + lastName + "\",\n");
-
-        // 1 java char = 2 bytes
-        // 100 000 chars = 200 000 bytes = approx. 200 KB
-        // 10 000 entries x 200 KB = approx. 2 GB of data
-        // or 20 000 entries with 50 000 chars = approx. 2 GB of data
-
-        // or 100 000 entries with 10 000 chars (=20 KB) (1 large document) = approx. 2 GB of data
-
-        // This is approximately 20 KB+ entry
-        char[] chars = new char[10000];
-        Arrays.fill(chars, 'x');
-        String payload = new String(chars);
-
-        sb.append("\"documentString\":\"" + payload + "\",\n");
-
-        sb.append("\"age\":" + age + "\n");
-        sb.append("}");
-
-        return sb.toString();
     }
 
 }

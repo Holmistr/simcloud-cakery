@@ -22,20 +22,13 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.perfcake.message.Message;
 import org.perfcake.reporting.MeasurementUnit;
+import org.utils.IspnCakeryUtils;
 
 
 /**
  * A mutual sender for both OData and REST.
- * <p/>
- * It makes sure that approach for measuring Infinispan OData and REST server
- * is consistent and there are used only different URIs, hosts, ports, etc. in this Sender.
- * <p/>
- * <p/>
- * An entry is generated JSON document with unique ID, approximately about 20 KB+ size.
- * 20 k entries occupy approx. 450 MB of heap size.
- * 40 k entries ~~> 900 MB x numOfOwner=2 (dist mode) ~~> approx. 1,8 GB of data.
- * <p/>
- * Server started with Xmx and Xms=4096m, no more than a half of heap size should be occupied (JDG QE).
+ *
+ * @author Tomas Sykora <tomas@infinispan.org>
  */
 public class IspnCakeryODataAndRestSender extends AbstractSender {
 
@@ -53,7 +46,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     // TODO: add defaults
     private String serviceUri;
     private String cacheName;
-    private String perfcakeAgentHost;
+    private String perfcakeAgentHost = "";
     private int numOfEntries = 1;
     private int requestSleepTimeMillis = 0;
 
@@ -80,7 +73,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 //      String cacheName = "mySpecialNamedCache" "defaultCache"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
-        perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
+        if (System.getProperty("perfcake.agent.host") != null) {
+            perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
+        }
 
         if (System.getProperty("requestSleepTimeMillis") != null) {
             requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
@@ -103,13 +98,13 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
             log.info("Starting init() method in: " + this.getClass().getName());
 
             String entryKey;
-            String jsonPerson = null;
+            String jsonPerson;
             String post;
 
             for (int i = 1; i <= numOfEntries; i++) {
 
                 entryKey = "person" + i + "-" + perfcakeAgentHost;
-                jsonPerson = createJsonPersonString(
+                jsonPerson = IspnCakeryUtils.createJsonPersonString(
                         "org.infinispan.odata.Person", "person" + i, "MALE", "John", "Smith", 24);
 
                 if (i % 100 == 0) {
@@ -197,9 +192,9 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
             get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries) + 1) +
                     "-" + perfcakeAgentHost + "%27";
 
-            // OData interface approach (NOT SUPPORTED YET)
+            // OData classic interface approach (NOT SUPPORTED YET)
             // + this is slow, problems with a closing of streams
-            // (we use OData service operations as a workaround; to gain control over output stream)
+            // (we use OData service operations as a workaround; to gain more control in odata4j framework)
             // get = serviceUri + "" + cacheName + "%28%27" + "person" + (rand.nextInt(numOfEntries)+1) + "%27%29";
 
         } else {
@@ -259,52 +254,4 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         }
     }
 
-    /**
-     * Return OData standardized JSON (represented as String)
-     * This can be passed as content (StringEntity) of HTTP POST request
-     * <p/>
-     * // TODO -- generate large entries of size passed by -Dproperty
-     * // TODO -- move it to UTILs class (Entry generation  is the same for all Senders)
-     * // TODO -- so not create StringBuilder object for every put
-     *
-     * @param entityClass
-     * @param id
-     * @param gender
-     * @param firstName
-     * @param lastName
-     * @param age
-     * @return Standardized OData JSON person entity as String.
-     */
-    public static String createJsonPersonString(String entityClass, String id,
-                                                String gender, String firstName, String lastName, int age) {
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("{");
-        sb.append("\"entityClass\":\"" + entityClass + "\",\n");
-        sb.append("\"id\":\"" + id + "\",\n");
-        sb.append("\"gender\":\"" + gender + "\",\n");
-        sb.append("\"firstName\":\"" + firstName + "\",\n");
-        sb.append("\"lastName\":\"" + lastName + "\",\n");
-
-        // Source: http://www.javamex.com/tutorials/memory/string_memory_usage.shtml
-        // 1 java char = 2 bytes
-        // 100 000 chars = 200 000 bytes = approx. 200 KB
-        // 10 000 entries x 200 kB = approx. 2 GB of data
-        // or 20 000 entries with 50 000 chars = approx. 2 GB of data
-
-        // or 100 000 entries with 10 000 chars (=20 kB) (1 large document) = approx. 2 GB of data
-
-        // This is approximately 20,3 kB entry
-//        char[] chars = new char[10000];
-//        Arrays.fill(chars, 'x');
-//        String payload = new String(chars);
-//
-//        sb.append("\"documentString\":\"" + payload + "\",\n");
-
-        sb.append("\"age\":" + age + "\n");
-        sb.append("}");
-
-        return sb.toString();
-    }
 }
