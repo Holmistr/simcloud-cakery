@@ -43,7 +43,6 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     private boolean failedPutRetried = false;
 
     // parameters passed as System properties using -Dproperty=value
-    // TODO: add defaults
     private String serviceUri;
     private String cacheName;
     private String perfcakeAgentHost = "";
@@ -57,22 +56,22 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
     /**
      * This method is called once by each thread for needed initializations.
      * It depends on test logic, but if we need firstly put data into the cache
-     * and then process only gets, do filling part of init() only once
+     * and then process only gets, do filling part of init() only once.
      * <p/>
      * initDone system property is used for driving this logic
-     * when the first thread set it up, other threads can see it
+     * when the first thread set it up, other threads can see it.
+     * <p/>
+     * OData: http://{bind_node}:8887/ODataInfinispanEndpoint.svc/
+     * Rest: http://{bind_node}:8080/rest/
      *
      * @throws Exception
      */
     @Override
     public void init() throws Exception {
 
-//      OData: http://localhost:8887/ODataInfinispanEndpoint.svc/
-//      OData: http://{bind_node}:8887/ODataInfinispanEndpoint.svc/
-//      Rest: http://127.0.0.1:8080/rest/
-//      String cacheName = "mySpecialNamedCache" "defaultCache"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
+
         if (System.getProperty("perfcake.agent.host") != null) {
             perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
         }
@@ -80,6 +79,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         if (System.getProperty("requestSleepTimeMillis") != null) {
             requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
         }
+
         log.info("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
 
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
@@ -89,7 +89,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
         if (!initDone) {
 
             log.info("Setting system property initDone to value: true... other threads should see it.");
-            // this Thread is responsible for filling cache
+            // only this Thread is responsible for filling a cache
             System.setProperty("initDone", "true");
             initDone = true;
 
@@ -130,13 +130,13 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                     httpPost.setEntity(se);
 
                     CloseableHttpResponse response = httpClientForPost.execute(httpPost);
-                    System.out.println("Response code of http post: " + response.getStatusLine().getStatusCode());
+                    // log.trace("Response code of http post: " + response.getStatusLine().getStatusCode());
                     EntityUtils.consume(response.getEntity());
 
                     // reset failure notificator for next put
                     failedPutRetried = false;
 
-                } catch (NoHttpResponseException e) {
+                } catch (NoHttpResponseException | SocketException e) {
                     // server failed to respond -- retry, it is needed to store that object
                     if (!failedPutRetried) {
                         i--;
@@ -146,20 +146,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
                     } else {
                         log.error("This put was already retried and failed again - give up, i = " + i + " " + e.getMessage());
                     }
-
-                } catch (SocketException e) {
-                    // server failed to respond -- retry, it is needed to store that object
-                    if (!failedPutRetried) {
-                        i--;
-                        log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
-                        numOfPutErrors++;
-                        failedPutRetried = true;
-                    } else {
-                        log.error("This put was already retried and failed again - give up, i = " + i + " " + e.getMessage());
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (ClientProtocolException e) {
+                } catch (UnsupportedEncodingException | ClientProtocolException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -192,11 +179,8 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
             get = serviceUri + "" + cacheName + "_get?key=%27" + "person" + (rand.nextInt(numOfEntries) + 1) +
                     "-" + perfcakeAgentHost + "%27";
 
-            // OData classic interface approach (NOT SUPPORTED YET)
-            // + this is slow, problems with a closing of streams
-            // (we use OData service operations as a workaround; to gain more control in odata4j framework)
+            // OData classic interface approach (NOT SUPPORTED YET) -- this is slow, problems with a closing of streams
             // get = serviceUri + "" + cacheName + "%28%27" + "person" + (rand.nextInt(numOfEntries)+1) + "%27%29";
-
         } else {
             // REST
             get = serviceUri + "" + cacheName + "/person" + (rand.nextInt(numOfEntries) + 1) + "-" + perfcakeAgentHost;
@@ -226,9 +210,7 @@ public class IspnCakeryODataAndRestSender extends AbstractSender {
 
             EntityUtils.consume(entity);
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
+        } catch (UnsupportedEncodingException | ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
             numOfGetErrors++;

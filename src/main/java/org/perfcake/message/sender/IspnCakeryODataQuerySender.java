@@ -62,16 +62,15 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
      * <p/>
      * initDone system property is used for driving this logic
      * when the first thread set it up, other threads can see it
+     * <p/>
+     * OData: http://{bind_node}:8887/ODataInfinispanEndpoint.svc/
      *
      * @throws Exception
      */
     @Override
     public void init() throws Exception {
 
-//      OData: http://localhost:8887/ODataInfinispanEndpoint.svc/
-//      OData: http://{bind_node}:8887/ODataInfinispanEndpoint.svc/
 
-//      String cacheName = "mySpecialNamedCache" "defaultCache"
         serviceUri = System.getProperty("serviceUri");
         cacheName = System.getProperty("cacheName");
         perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
@@ -88,7 +87,7 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
         if (!initDone) {
 
             log.info("Setting system property initDone to value: true... other threads should see it.");
-            // this Thread is responsible for filling cache
+            // this Thread is responsible for filling a cache
             System.setProperty("initDone", "true");
             initDone = true;
 
@@ -107,10 +106,9 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
                         "org.infinispan.odata.Person", entryKey, "MALE", "John", "Smith", 24);
 
 
-                if (i % 100 == 0) {
-                    log.info("\n" + i + " entryKey = " + entryKey + "\n");
+                if (i % 1000 == 0) {
+                    log.info("\n" + i + "th entryKey = " + entryKey + "\n");
                 }
-
 
                 // OData
                 post = serviceUri + "" + cacheName + "_put?IGNORE_RETURN_VALUES=%27true%27&key=%27" + entryKey + "%27";
@@ -126,13 +124,13 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
                     httpPost.setEntity(se);
 
                     CloseableHttpResponse response = httpClientForPost.execute(httpPost);
-                    System.out.println("Response code of http post: " + response.getStatusLine().getStatusCode());
+                    // log.trace("Response code of http post: " + response.getStatusLine().getStatusCode());
                     EntityUtils.consume(response.getEntity());
 
                     // reset failure notificator for next put
                     failedPutRetried = false;
 
-                } catch (NoHttpResponseException e) {
+                } catch (NoHttpResponseException | SocketException e) {
                     // server failed to respond -- retry, it is needed to store that object
                     if (!failedPutRetried) {
                         i--;
@@ -142,20 +140,7 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
                     } else {
                         log.error("This put was already retried and failed again - give up, i = " + i + " " + e.getMessage());
                     }
-
-                } catch (SocketException e) {
-                    // server failed to respond -- retry, it is needed to store that object
-                    if (!failedPutRetried) {
-                        i--;
-                        log.error("Server failed to respond, RETRY, decreasing counter by 1 to " + i + " \n message: " + e.getMessage());
-                        numOfPutErrors++;
-                        failedPutRetried = true;
-                    } else {
-                        log.error("This put was already retried and failed again - give up, i = " + i + " " + e.getMessage());
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (ClientProtocolException e) {
+                } catch (UnsupportedEncodingException | ClientProtocolException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -211,9 +196,7 @@ public class IspnCakeryODataQuerySender extends AbstractSender {
 
             EntityUtils.consume(entity);
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
+        } catch (UnsupportedEncodingException | ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
             numOfGetErrors++;

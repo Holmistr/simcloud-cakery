@@ -45,9 +45,10 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
     @Override
     public void init() throws Exception {
 
-        requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
-
-        log.info("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
+        if (System.getProperty("requestSleepTimeMillis") != null) {
+            requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
+            log.info("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
+        }
 
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
         initDone = Boolean.parseBoolean(System.getProperty("initDone"));
@@ -65,7 +66,6 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
             // immediately let other threads know that this is Thread responsible for filling cache
             System.setProperty("initDone", "true");
             initDone = true;
-            requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
 
             long start = System.currentTimeMillis();
             log.info("Doing Init in " + this.getClass().getName());
@@ -87,12 +87,6 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
             }
 
             log.info("\n Init method took: " + (System.currentTimeMillis() - start));
-
-            // sleep just in this loader/init thread
-//            log.info("\nThis is MEMCACHED Sender... init() was done, sleeping 60 seconds " +
-//                    "to wait for other servers in a cluster\n");
-//            Thread.sleep(60000);
-
         } else {
             log.info("Init() method was already initialized by the first thread, skipping to doSend().");
         }
@@ -116,7 +110,7 @@ public class IspnCakeryMemcachedSender extends AbstractSender {
         if (mc1.get("person" + r + "appendix" + perfcakeAgentHost) == null) {
             log.error("Memcached: Entity is null :( Bad returned? Nonexistent entry? Entry key: " +
                     ("person" + r + "appendix" + perfcakeAgentHost));
-//            throw new Exception("Memcached: value for key person" + r + "appendix" + perfcakeAgentHost + " is NULL");
+        // throw new Exception("Memcached: value for key person" + r + "appendix" + perfcakeAgentHost + " is NULL");
         }
 
         return null;

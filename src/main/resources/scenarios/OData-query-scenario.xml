@@ -54,18 +54,17 @@
             </destination>
         </reporter>
 
-        <reporter class="MemoryUsageReporter">
-            <property name="agentHostname" value="${perfcake.agent.host}"/>
-            <property name="agentPort" value="8850"/>
-            <destination class="ConsoleDestination">
-                <period type="time" value="1000"/>
-            </destination>
-            <destination class="CSVDestination">
-                <period type="time" value="1000"/>
-                <property name="path" value="memusage.csv"/>
-            </destination>
-        </reporter>
-
+        <!--<reporter class="MemoryUsageReporter">-->
+            <!--<property name="agentHostname" value="${perfcake.agent.host}"/>-->
+            <!--<property name="agentPort" value="8850"/>-->
+            <!--<destination class="ConsoleDestination">-->
+                <!--<period type="time" value="1000"/>-->
+            <!--</destination>-->
+            <!--<destination class="CSVDestination">-->
+                <!--<period type="time" value="1000"/>-->
+                <!--<property name="path" value="memusage.csv"/>-->
+            <!--</destination>-->
+        <!--</reporter>-->
     </reporting>
 </scenario>
 

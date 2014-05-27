@@ -27,7 +27,8 @@ public class IspnCakeryHotRodSender extends AbstractSender {
     private RemoteCache cache = null;
     private int numOfEntries = 1;
     private int r = 0; // random
-    private String perfcakeAgentHost="";
+    private String perfcakeAgentHost = "perfCakeAgentHostNotSet";
+    private String hotrodHost = "localhost";
     private int requestSleepTimeMillis = 0;
     private Random rand = new Random();
 
@@ -44,8 +45,10 @@ public class IspnCakeryHotRodSender extends AbstractSender {
     @Override
     public void init() throws Exception {
 
-        requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
-        log.info("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
+        if (System.getProperty("requestSleepTimeMillis") != null) {
+            requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
+            log.info("requestSleepTimeMillis set to: " + requestSleepTimeMillis);
+        }
 
         numOfEntries = Integer.parseInt(System.getProperty("numberOfEntries"));
         initDone = Boolean.parseBoolean(System.getProperty("initDone"));
@@ -54,9 +57,13 @@ public class IspnCakeryHotRodSender extends AbstractSender {
             perfcakeAgentHost = System.getProperty("perfcake.agent.host").replace(".", "");
         }
 
+        if (System.getProperty("hotrod.host") != null) {
+            hotrodHost = System.getProperty("hotrod.host");
+        }
+
         try {
             ConfigurationBuilder config = new ConfigurationBuilder();
-            config.addServer().host(System.getProperty("hotrod.host"))
+            config.addServer().host(hotrodHost)
                     .port(11222);
             RemoteCacheManager remoteCacheManager = new RemoteCacheManager(config.build());
             this.cache = remoteCacheManager.getCache();
@@ -72,7 +79,6 @@ public class IspnCakeryHotRodSender extends AbstractSender {
             // immediately let other threads know that this is Thread responsible for filling cache
             System.setProperty("initDone", "true");
             initDone = true;
-            requestSleepTimeMillis = Integer.parseInt(System.getProperty("requestSleepTimeMillis"));
 
             long start = System.currentTimeMillis();
             log.info("Doing Init in " + this.getClass().getName());
@@ -112,7 +118,7 @@ public class IspnCakeryHotRodSender extends AbstractSender {
     @Override
     public Serializable doSend(final Message message, final Map<String, String> properties, final MeasurementUnit mu) throws Exception {
 
-        r = rand.nextInt(numOfEntries)+1;
+        r = rand.nextInt(numOfEntries) + 1;
 
         if (cache.get("person" + r + "-" + perfcakeAgentHost) == null) {
             log.error("HotRod: Entity is null :( Bad returned? Nonexistent entry? Entry key: " + ("person" + r + "-" + perfcakeAgentHost));
