@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<scenario xmlns="urn:perfcake:scenario:5.0">
+    <run type="${runType:time}" value="${duration:10000}" />
+
+    <generator class="DefaultMessageGenerator" threads="${threads:10}">
+        <property name="threadQueueSize" value="${threadQueueSize:10}" />
+    </generator>
+
+    <sender class="SearchExecutorSender">
+        <property name="target" value="not needed here"/>
+    </sender>
+
+    <reporting>
+        <reporter class="ThroughputStatsReporter">
+            <destination class="ConsoleDestination">
+                <period type="time" value="${consoleDestinationTime:800}"/>
+            </destination>
+            <destination class="CsvDestination">
+                <period type="time" value="${csvDestinationTime:800}"/>
+                <property name="path" value="${csvTarget:results/results.csv}"/>
+            </destination>
+        </reporter>
+    </reporting>
+</scenario>
+
