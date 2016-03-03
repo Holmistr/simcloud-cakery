@@ -103,8 +103,11 @@ public class SearchExecutorSender extends AbstractSender {
         Pattern pattern = Pattern.compile("OperationTime: ([0-9]+)");
         Matcher matcher = pattern.matcher(output);
 
+        mu.appendResult("OperationTime", 0);
+
         if (matcher.find()) {
-            mu.appendResult("Operation time", matcher.group(1));
+            String result = matcher.group(1);
+            mu.appendResult("OperationTime", result);
         }
 
         return null;
